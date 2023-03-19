@@ -26,6 +26,7 @@ df = df.reindex(columns=['name',"isin",'Anleihen-TypZins-Typ','Kupon','Nominal',
 
 # Enrichment
 #1. Add to each index the current value
+# Get from https://www.finanzen.net/anleihen/a0e6fu-suedzucker-international-finance-bv-anleihe
 #2. Add to each index the Rating
 # Get from https://www.finanzen.net/anleihen/a0e6fu-suedzucker-international-finance-bv-anleihe
 #3. Add to each index the sales value of the last day
