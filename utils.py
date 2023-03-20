@@ -1,4 +1,9 @@
 import pandas as pd
+import numpy as np
+import time
+import urllib
+from dateutil import relativedelta
+import datetime
 
 
 def clean_name(x):
@@ -29,5 +34,50 @@ def split_colum(x):
     name = x.split("Anleihe")[0]
     isin = x.split("ISIN")[-1]
 
-
     return pd.Series([name, isin])
+
+
+def revenue_and_last_price(row):
+    """
+    Get for a bond from finanze.net the revenue of the day and the last price
+    :param x:
+    :return:
+    """
+    '#1.Step: Define the isin'
+    isin = row["isin"]
+    '#2.Step: Define url'
+    url = f"https://www.finanzen.net/anleihen/{isin}"
+    'there will be a redirect'
+    '#2.1.Step: Define url'
+
+    print(f'Current row: {row.name}')
+    try:
+        res = urllib.request.urlopen(url)
+        redirect_url = res.geturl()
+        finalurl = redirect_url.replace("anleihen", "/anleihen/timesandsales")
+        # print(finalurl)
+        df_kurs = pd.read_html(finalurl, match='Umsatz', decimal=',', thousands='.', flavor='bs4')[0]
+
+        revenue = sum(df_kurs["Umsatz"]*df_kurs["Kurs"]/100)
+        last_price = df_kurs.loc[0, "Kurs"]
+        return pd.Series([revenue, last_price])
+    except:
+        print("error")
+        print(url)
+
+        return pd.Series([np.nan, np.nan])
+
+
+def remain_time(x):
+    """
+    calculate the remaining time based on today in months
+    :param x:
+    :return:
+    """
+    due_date = x
+    now = datetime.datetime.now()
+
+    delta = relativedelta.relativedelta(due_date, now)
+    res_months = delta.months + (delta.years * 12)
+
+    return pd.Series([res_months])
