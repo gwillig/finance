@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
+import requests
 import time
 import urllib
 from dateutil import relativedelta
 import datetime
-
+from bs4 import BeautifulSoup
 
 def clean_name(x):
     """clean the name to convert to something readable
@@ -81,3 +82,28 @@ def remain_time(x):
     res_months = delta.months + (delta.years * 12)
 
     return pd.Series([res_months])
+
+
+def add_rating(row):
+    """
+    Get for a bond from finanze.net the rating
+    :param x:
+    :return:
+    """
+    '#1.Step: Define the isin'
+    isin = row["isin"]
+    '#2.Step: Define url'
+    url = f"https://www.finanzen.net/anleihen/{isin}"
+    print(f'Current row: {row.name}')
+
+    website = requests.get(url)
+
+    results = BeautifulSoup(website.content, 'html.parser')
+
+    rating_element = results.find(class_="tachoValue tachoMr mr2")
+
+    if rating_element!=None:
+        return rating_element.text
+    else:
+        print("no rating found")
+        return np.nan

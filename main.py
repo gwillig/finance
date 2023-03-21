@@ -31,7 +31,7 @@ df = df.reindex(columns=['name', "isin", 'Anleihen-TypZins-Typ', 'Kupon', 'Nomin
 
 '#2.1.Step: Convert name into normal string'
 
-'#3.Step:nrichment'
+'#3.Step:enrichment'
 '#3.1.Step: Add to each index the current value and the revenue of the day'
 df[['umsatz', 'kurs']] = df.apply(revenue_and_last_price, axis=1)
 
@@ -41,9 +41,29 @@ df[['restliche_zeit_monaten']] = df["Fälligkeit"].apply(remain_time)
 # Get from https://www.finanzen.net/anleihen/a0e6fu-suedzucker-international-finance-bv-anleihe
 # 3. Add to each index the sales value of the last day
 
+def add_rating(row):
+    """
+    Get for a bond from finanze.net the rating
+    :param x:
+    :return:
+    """
+    '#1.Step: Define the isin'
+    isin = row["isin"]
+    '#2.Step: Define url'
+    url = f"https://www.finanzen.net/anleihen/{isin}"
+    print(f'Current row: {row.name}')
+
+    website = requests.get(url)
+
+    results = BeautifulSoup(website.content, 'html.parser')
+
+    rating_element = results.find(class_="tachoValue tachoMr mr2")
+
+    if rating_element!=None:
+        return rating_element.text
+    else:
+        print("no rating found")
+        return np.nan
 
 
-
-
-
-
+df['rating'] = df.apply(add_rating, axis=1)
