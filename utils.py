@@ -83,6 +83,11 @@ def remain_time(x):
 
     return pd.Series([res_months])
 
+def add_finanzen_link(row):
+    isin = row["isin"]
+    '#2.Step: Define url'
+    url = f"https://www.finanzen.net/anleihen/{isin}"
+    return url
 
 def add_rating(row):
     """
