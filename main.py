@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+from pandasgui import show
 from bs4 import BeautifulSoup
 import datetime
 import urllib.request
@@ -150,3 +151,6 @@ def get_onvista_bond_own_search(url, table_finder):
 
 df1 = get_df_from_onvista_most_search(**url_most_search)
 df2 = get_onvista_bond_own_search(**url_own_criteria)
+
+df=pd.read_csv("most_search_bonds.csv")
+show(df)
